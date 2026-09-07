@@ -1,19 +1,31 @@
+
 const FilterBar = ({ filter, setFilter }) => {
+  const filters = [
+    "All",
+    "Today",
+    "Upcoming",
+    "Completed",
+    "Cancelled",
+  ];
+
   return (
-    <div>
-      <select
-        value={filter}
-        onChange={(e) => setFilter(e.target.value)}
-        className="bg-white border border-gray-300 rounded-lg px-4 py-3 outline-none focus:ring-2 focus:ring-blue-500"
-      >
-        {" "}
-        <option value="All">All</option> <option value="Today">Today</option>{" "}
-        <option value="Upcoming">Upcoming</option>{" "}
-        <option value="Completed">Completed</option>{" "}
-        <option value="Cancelled">Cancelled</option>{" "}
-      </select>
+    <div className="flex flex-wrap gap-2">
+      {filters.map((item) => (
+        <button
+          key={item}
+          onClick={() => setFilter(item)}
+          className={`px-4 py-3 rounded-lg text-sm font-medium transition ${
+            filter === item
+              ? "bg-blue-600 text-white"
+              : "bg-white text-gray-600 border border-gray-300 hover:bg-gray-100"
+          }`}
+        >
+          {item}
+        </button>
+      ))}
     </div>
   );
 };
 
 export default FilterBar;
+
