@@ -1,6 +1,11 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
-const AppointmentForm = ({ addAppointment }) => {
+const AppointmentForm = ({
+  addAppointment,
+  editAppointment,
+  editingAppointment,
+  setEditingAppointment,
+}) => {
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -10,6 +15,21 @@ const AppointmentForm = ({ addAppointment }) => {
     service: "",
     notes: "",
   });
+
+  // Load appointment data when editing
+  useEffect(() => {
+    if (editingAppointment) {
+      setFormData({
+        name: editingAppointment.name,
+        email: editingAppointment.email,
+        phone: editingAppointment.phone,
+        date: editingAppointment.date,
+        time: editingAppointment.time,
+        service: editingAppointment.service,
+        notes: editingAppointment.notes,
+      });
+    }
+  }, [editingAppointment]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -23,7 +43,32 @@ const AppointmentForm = ({ addAppointment }) => {
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    addAppointment(formData);
+    if (editingAppointment) {
+      // Update existing appointment
+      editAppointment({
+        ...formData,
+        id: editingAppointment.id,
+        status: editingAppointment.status,
+      });
+    } else {
+      // Add new appointment
+      addAppointment(formData);
+    }
+
+    // Clear form
+    setFormData({
+      name: "",
+      email: "",
+      phone: "",
+      date: "",
+      time: "",
+      service: "",
+      notes: "",
+    });
+  };
+
+  const handleCancel = () => {
+    setEditingAppointment(null);
 
     setFormData({
       name: "",
@@ -38,9 +83,21 @@ const AppointmentForm = ({ addAppointment }) => {
 
   return (
     <form onSubmit={handleSubmit}>
-      <h2 className="text-xl font-bold text-gray-800 mb-6">
-        Add New Appointment
-      </h2>
+      <div className="flex justify-between items-center mb-6">
+        <h2 className="text-xl font-bold text-gray-800">
+          {editingAppointment ? "Edit Appointment" : "Add New Appointment"}
+        </h2>
+
+        {editingAppointment && (
+          <button
+            type="button"
+            onClick={handleCancel}
+            className="text-sm text-gray-500 hover:text-gray-700"
+          >
+            Cancel
+          </button>
+        )}
+      </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
         {/* Name */}
@@ -164,13 +221,23 @@ const AppointmentForm = ({ addAppointment }) => {
         </div>
       </div>
 
-      {/* Submit */}
-      <div className="flex justify-end mt-6">
+      {/* Buttons */}
+      <div className="flex justify-end gap-3 mt-6">
+        {editingAppointment && (
+          <button
+            type="button"
+            onClick={handleCancel}
+            className="px-6 py-2.5 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-100"
+          >
+            Cancel
+          </button>
+        )}
+
         <button
           type="submit"
           className="bg-blue-600 text-white px-6 py-2.5 rounded-lg font-medium hover:bg-blue-700 transition"
         >
-          + Add Appointment
+          {editingAppointment ? "Update Appointment" : "+ Add Appointment"}
         </button>
       </div>
     </form>
