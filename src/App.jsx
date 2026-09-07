@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Navbar from "./components/Navbar";
 import DashboardStats from "./components/DashboardStats";
 import AppointmentForm from "./components/AppointmentForm";
@@ -7,10 +7,17 @@ import FilterBar from "./components/FilterBar";
 import AppointmentList from "./components/AppointmentList";
 
 const App = () => {
-  const [appointments, setAppointments] = useState([]);
+  const [appointments, setAppointments] = useState(() => {
+    const savedAppointments = localStorage.getItem("appointments");
+    return savedAppointments ? JSON.parse(savedAppointments) : [];
+  });
   const [editingAppointment, setEditingAppointment] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [filter, setFilter] = useState("All");
+  useEffect(() => {
+    localStorage.setItem("appointments", JSON.stringify(appointments));
+  }, [appointments]);
+
   // Add appointment
   const addAppointment = (appointment) => {
     setAppointments((previous) => [
@@ -75,16 +82,15 @@ const App = () => {
     return appointment.status === filter;
   });
 
-const updateStatus = (id, newStatus) => {
-  setAppointments((previous) =>
-    previous.map((appointment) =>
-      appointment.id === id
-        ? { ...appointment, status: newStatus }
-        : appointment
-    )
-  );
-};
-
+  const updateStatus = (id, newStatus) => {
+    setAppointments((previous) =>
+      previous.map((appointment) =>
+        appointment.id === id
+          ? { ...appointment, status: newStatus }
+          : appointment,
+      ),
+    );
+  };
 
   return (
     <div className="min-h-screen bg-gray-100">
@@ -107,7 +113,12 @@ const updateStatus = (id, newStatus) => {
           <FilterBar filter={filter} setFilter={setFilter} />
         </div>
 
-<AppointmentList appointments={filteredAppointments} deleteAppointment={deleteAppointment} editAppointment={setEditingAppointment} updateStatus={updateStatus} />
+        <AppointmentList
+          appointments={filteredAppointments}
+          deleteAppointment={deleteAppointment}
+          editAppointment={setEditingAppointment}
+          updateStatus={updateStatus}
+        />
       </main>
     </div>
   );
