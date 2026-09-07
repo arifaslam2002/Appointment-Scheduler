@@ -10,6 +10,7 @@ const App = () => {
   const [appointments, setAppointments] = useState([]);
   const [editingAppointment, setEditingAppointment] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
+  const [filter, setFilter] = useState("All");
   // Add appointment
   const addAppointment = (appointment) => {
     setAppointments((previous) => [
@@ -42,15 +43,49 @@ const App = () => {
     // Exit edit mode
     setEditingAppointment(null);
   };
+
   const filteredAppointments = appointments.filter((appointment) => {
+    // Search
     const search = searchTerm.toLowerCase();
 
-  return (
-    appointment.name.toLowerCase().includes(search) ||
-    appointment.email.toLowerCase().includes(search) ||
-    appointment.phone.toString().includes(search)
-  );
+    const matchesSearch =
+      appointment.name.toLowerCase().includes(search) ||
+      appointment.email.toLowerCase().includes(search) ||
+      appointment.phone.toString().includes(search);
+
+    if (!matchesSearch) {
+      return false;
+    }
+
+    // Filter
+    if (filter === "All") {
+      return true;
+    }
+
+    if (filter === "Today") {
+      const today = new Date();
+
+      const todayString = `${today.getFullYear()}-${String(
+        today.getMonth() + 1,
+      ).padStart(2, "0")}-${String(today.getDate()).padStart(2, "0")}`;
+
+      return appointment.date === todayString;
+    }
+
+    return appointment.status === filter;
   });
+
+const updateStatus = (id, newStatus) => {
+  setAppointments((previous) =>
+    previous.map((appointment) =>
+      appointment.id === id
+        ? { ...appointment, status: newStatus }
+        : appointment
+    )
+  );
+};
+
+
   return (
     <div className="min-h-screen bg-gray-100">
       <Navbar />
@@ -68,16 +103,11 @@ const App = () => {
         </div>
 
         <div className="flex gap-4 mt-6">
-          <SearchBar   searchTerm={searchTerm}
-  setSearchTerm={setSearchTerm}/>
-          <FilterBar />
+          <SearchBar searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
+          <FilterBar filter={filter} setFilter={setFilter} />
         </div>
 
-        <AppointmentList
-          appointments={filteredAppointments}
-          deleteAppointment={deleteAppointment}
-          editAppointment={setEditingAppointment}
-        />
+<AppointmentList appointments={filteredAppointments} deleteAppointment={deleteAppointment} editAppointment={setEditingAppointment} updateStatus={updateStatus} />
       </main>
     </div>
   );

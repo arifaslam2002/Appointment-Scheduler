@@ -4,6 +4,7 @@ const AppointmentList = ({
   appointments,
   deleteAppointment,
   editAppointment,
+  updateStatus,
 }) => {
   return (
     <div className="mt-6">
@@ -21,6 +22,7 @@ const AppointmentList = ({
               appointment={appointment}
               deleteAppointment={deleteAppointment}
               editAppointment={editAppointment}
+              updateStatus={updateStatus}
             />
           ))}
         </div>
